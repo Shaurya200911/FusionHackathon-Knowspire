@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<title>Login – Knowspire</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #e2e8f0, #f7fafc);
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .login-card {
+    max-width: 420px;
+    margin: 100px auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 30px;
+    transition: 0.3s;
+  }
+
+  .login-card h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1f2c3a;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .btn-primary {
+    background-color: #5e4df3;
+    border: none;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background-color: #483ee0;
+  }
+
+  .alert {
+    font-size: 0.95rem;
+    margin-top: 10px;
+  }
+
+  .login-footer {
+    font-size: 0.85rem;
+    margin-top: 16px;
+    color: #718096;
+  }
+
+  .login-footer a {
+    color: #5e4df3;
+    text-decoration: none;
+  }
+  .login-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="container">
+  <div class="login-card">
+    <h1 class="text-center">Welcome Back</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" id="username" required autofocus>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" id="password" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 mt-2">Log In</button>
+    </form>
+
+    <div class="login-footer text-center">
+      Don’t have an account? <a href="{% url 'register' %}">Sign up</a> <br>
+    </div>
+  </div>
+</section>
+{% endblock %}

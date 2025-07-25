@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+<title>Register – Knowspire</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #e2e8f0, #f7fafc);
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .register-card {
+    max-width: 420px;
+    margin: 100px auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 30px;
+    transition: 0.3s;
+  }
+
+  .register-card h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1f2c3a;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .btn-primary {
+    background-color: #5e4df3;
+    border: none;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background-color: #483ee0;
+  }
+
+  .alert {
+    font-size: 0.95rem;
+    margin-top: 10px;
+  }
+
+  .register-footer {
+    font-size: 0.85rem;
+    margin-top: 16px;
+    color: #718096;
+  }
+
+  .register-footer a {
+    color: #5e4df3;
+    text-decoration: none;
+  }
+
+  .register-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="container">
+  <div class="register-card">
+    <h1 class="text-center">Sign Up</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="mb-3 text-start">
+        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" id="{{ form.username.id_for_label }}" value="{{ form.username.value|default_if_none:'' }}" required>
+        {% if form.username.errors %}
+          <div class="text-danger small">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3 text-start">
+        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default_if_none:'' }}" required>
+        {% if form.email.errors %}
+          <div class="text-danger small">{{ form.email.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3 text-start">
+        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+        <input type="password" name="password1" class="form-control" id="{{ form.password1.id_for_label }}" required>
+        {% if form.password1.errors %}
+          <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3 text-start">
+        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+        <input type="password" name="password2" class="form-control" id="{{ form.password2.id_for_label }}" required>
+        {% if form.password2.errors %}
+          <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mt-2">Create Account</button>
+    </form>
+
+    <div class="register-footer text-center">
+      Already have an account? <a href="{% url 'login' %}">Log In</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
