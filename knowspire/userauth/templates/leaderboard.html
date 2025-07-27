@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<title>Leaderboard – KnowSpire</title>
+<style>
+  /* Reuse Dashboard Theme Variables */
+  :root {
+    --bg-gradient-start: #e0f2fe;
+    --bg-gradient-end: #ede9fe;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #4b5563;
+    --sidebar-hover: #f3e8ff;
+    --sidebar-active: #7c3aed;
+    --card-bg: #ffffff;
+    --card-border: #e0e7ff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --progress-bg: #e0e7ff;
+    --button-text: #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e293b;
+    --sidebar-bg: #1f2937;
+    --sidebar-text: #d1d5db;
+    --sidebar-hover: #374151;
+    --sidebar-active: #a78bfa;
+    --card-bg: #111827;
+    --card-border: #374151;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --progress-bg: #374151;
+    --button-text: #f9fafb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { font-family: 'Poppins', sans-serif; }
+  #theme-root {
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    color: var(--text-secondary);
+    transition: background 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  .dashboard-layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid var(--card-border);
+  }
+  .sidebar-logo img { width: 80px; }
+  .sidebar-nav { width: 100%; margin-top: 24px; display: flex; flex-direction: column; }
+  .sidebar-link {
+    text-decoration: none;
+    padding: 12px 24px;
+    color: var(--sidebar-text);
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar-link:hover, .sidebar-link.active {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-active);
+  }
+  .theme-toggle {
+    margin-top: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--card-border);
+    background: none;
+    color: var(--sidebar-text);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /* Leaderboard Styles */
+  .main-content { flex: 1; padding: 40px; }
+  .leaderboard-header {
+    margin-bottom: 20px;
+  }
+  .leaderboard-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 14px 20px;
+    text-align: left;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .leaderboard-table th {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-active);
+    font-weight: 600;
+  }
+  .leaderboard-table tr.highlight {
+    background: rgba(124, 58, 237, 0.08);
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-layout" id="theme-root" data-theme="light">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="{% static 'assets/images/img_header_logo.png' %}" alt="Logo">
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'dashboard' %}" class="sidebar-link">🏠 Dashboard</a>
+      <a href="{% url 'leaderboard' %}" class="sidebar-link active">🏆 Leaderboard</a>
+      <a href="{% url 'logout' %}" class="sidebar-link">🔓 Logout</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle-btn">🌙 Dark Mode</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="leaderboard-header">
+      <h1>🏆 Leaderboard</h1>
+      <p>See where you stand among all learners.</p>
+    </header>
+
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>User</th>
+          <th>Total XP</th>
+          <th>Streak</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for profile in top_users %}
+          <tr class="{% if profile.user == current_user %}highlight{% endif %}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ profile.user.username }}</td>
+            <td>{{ profile.xp_total }}</td>
+            <td>{{ profile.current_streak }}🔥</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">No data yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<script>
+  const root = document.getElementById('theme-root');
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  root.setAttribute('data-theme', savedTheme);
+  toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+  toggleBtn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    toggleBtn.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  });
+</script>
+{% endblock %}

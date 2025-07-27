@@ -5,19 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/FusionHackathon.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/betterCommentsSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/forms.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/base.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/login.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/register.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/middleware.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/streaks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/signals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/dashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/leaderboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/test_streaks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/knowspire/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/knowspire/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/templates/paywall.html" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/templates/paywall.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +58,12 @@
     &quot;git-widget-placeholder&quot;: &quot;master&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\" />
+      <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\services" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
