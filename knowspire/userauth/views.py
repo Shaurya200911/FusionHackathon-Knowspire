@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.core.mail import send_mail
 from .forms import ContactForm
 from django.contrib import messages
+from django.db.models import Q
+from datetime import date
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,8 +12,17 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegisterForm
 from django.utils import timezone
-from .models import Activity, UserSkill, UserProfile
+from django.db.models import Sum
+from django.contrib.auth.models import User
+from .models import XPLog, UserProfile
+from .services.xp_log import award_quiz_xp
+from .models import Skill
+from django.shortcuts import get_object_or_404
+from .services.start_skill import start_skill
+from .models import Activity, UserSkill, UserProfile, Skill
 from .services.streaks import apply_daily_streak
+from .services.skills import ensure_today_content
+import json
 
 # Create your views here.
 
@@ -79,7 +90,6 @@ def paywall_view(request):
 @login_required
 def dashboard_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    apply_daily_streak(request.user)
     recent_activities = (
         Activity.objects
         .filter(user=request.user)
@@ -130,8 +140,180 @@ def dashboard_view(request):
 
 @login_required
 def leaderboard_view(request):
-    top_users = UserProfile.objects.select_related('user').order_by('-xp_total')[:50]
+    # Annotate total XP from XPLog
+    user_xp_data = (
+        XPLog.objects
+        .values('user')
+        .annotate(total_xp=Sum('xp_amount'))
+        .order_by('-total_xp')[:50]
+    )
+
+    # Get user objects and profiles
+    user_ids = [entry['user'] for entry in user_xp_data]
+    users = User.objects.in_bulk(user_ids)
+    profiles = UserProfile.objects.in_bulk(user_ids)
+
+    # Join into final leaderboard list
+    leaderboard = []
+    for entry in user_xp_data:
+        user = users.get(entry['user'])
+        profile = profiles.get(entry['user'])
+        if user and profile:
+            leaderboard.append({
+                "user": user,
+                "xp_total": entry['total_xp'],
+                "current_streak": profile.current_streak
+            })
+
     return render(request, 'leaderboard.html', {
-        'top_users': top_users,
-        'current_user': request.user
+        "top_users": leaderboard,
+        "current_user": request.user
     })
+
+
+@login_required
+def skills_view(request):
+    user = request.user
+
+    if request.method == "POST":
+        skill_slug = request.POST.get("skill_slug")
+        if skill_slug:
+            user_skill, error = start_skill(user, skill_slug)
+            if error:
+                messages.error(request, error)
+            else:
+                messages.success(request, f"Skill '{user_skill.skill.title}' started!")
+            return redirect("skills")
+
+    active_user_skills = UserSkill.objects.filter(user=user, is_active=True).select_related("skill")
+    archived_user_skills = UserSkill.objects.filter(user=user, is_active=False).select_related("skill")
+
+    # 🔹 Pass all skills so we can auto-fill the datalist
+    all_skills = Skill.objects.all()
+
+    return render(request, "skills.html", {
+        "active_user_skills": active_user_skills,
+        "archived_user_skills": archived_user_skills,
+        "available_skills": all_skills  # important
+    })
+@login_required
+def start_skill_view(request):
+    if request.method == "POST":
+        slug = request.POST.get("skill_slug")
+        try:
+            start_skill(request.user, slug)
+            messages.success(request, "Skill activated successfully.")
+        except Exception as e:
+            messages.error(request, f"Could not activate skill: {e}")
+    return redirect("skills")
+
+@login_required
+def skill_detail_view(request, slug):
+    skill = get_object_or_404(Skill, slug=slug)
+    user_skill = get_object_or_404(UserSkill, user=request.user, skill=skill)
+
+    today = date.today()
+
+    # Ensure today’s flashcard and quiz are created or fetched
+    flashcard, quiz = ensure_today_content(user_skill, today)
+
+    context = {
+        "skill": skill,
+        "user_skill": user_skill,
+        "flashcard": flashcard,
+        "quiz": quiz,
+    }
+    return render(request, "skill_detail.html", context)
+
+# views.py
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from .models import Quiz, QuizAttempt, XPLog, UserSkill
+
+@require_POST
+@login_required
+def submit_quiz_view(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    user = request.user
+    answer = request.POST.get('answer')
+
+    # Prevent re-submission
+    if QuizAttempt.objects.filter(user=user, quiz=quiz).exists():
+        return JsonResponse({"status": "error", "message": "Already attempted."})
+
+    is_correct = (answer == quiz.correct_answer)
+
+    # Log attempt
+    QuizAttempt.objects.create(
+        user=user,
+        quiz=quiz,
+        selected_answer=answer,
+        is_correct=is_correct
+    )
+
+    # Award XP and update progress if correct
+    if is_correct:
+        user_skill = quiz.user_skill
+        user_skill.xp_earned += 5
+        user_skill.progress_pct += 5  # optional logic
+        user_skill.save()
+
+        XPLog.objects.create(
+            user=user,
+            skill=user_skill.skill,
+            xp_amount=5,
+            reason="Quiz Correct",
+        )
+
+    return JsonResponse({
+        "status": "success",
+        "is_correct": is_correct,
+        "correct_answer": quiz.correct_answer,
+        "xp_awarded": 5 if is_correct else 0
+    })
+
+@login_required
+def archive_skill(request, user_skill_id):
+    if request.method == "POST":
+        user_skill = get_object_or_404(UserSkill, id=user_skill_id, user=request.user)
+        user_skill.is_active = False
+        user_skill.save()
+        messages.success(request, f"Skill '{user_skill.skill.title}' archived.")
+    return redirect("skills")
+
+@login_required
+def delete_skill(request, user_skill_id):
+    if request.method == "POST":
+        user_skill = get_object_or_404(UserSkill, id=user_skill_id, user=request.user)
+        skill_title = user_skill.skill.title
+        user_skill.delete()
+        messages.success(request, f"Skill '{skill_title}' deleted.")
+    return redirect("skills")
+
+@login_required
+def download_skill_data(request, user_skill_id):
+    user_skill = get_object_or_404(UserSkill, id=user_skill_id, user=request.user)
+
+    flashcards = Flashcard.objects.filter(user_skill=user_skill)
+    quizzes = Quiz.objects.filter(user_skill=user_skill)
+
+    data = {
+        "skill": user_skill.skill.title,
+        "flashcards": [
+            {"front": fc.front_text, "back": fc.back_text}
+            for fc in flashcards
+        ],
+        "quizzes": [
+            {
+                "question": q.question_text,
+                "options": [q.option_1, q.option_2, q.option_3, q.option_4],
+                "correct": q.correct_answer
+            }
+            for q in quizzes
+        ]
+    }
+
+    response = HttpResponse(json.dumps(data, indent=2), content_type="application/json")
+    filename = f"{user_skill.skill.slug}_data.json"
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response

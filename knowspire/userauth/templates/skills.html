@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<title>Skills – KnowSpire</title>
+<style>
+  /* Preserve theme */
+  :root {
+    --bg-gradient-start: #e0f2fe;
+    --bg-gradient-end: #ede9fe;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #4b5563;
+    --sidebar-hover: #f3e8ff;
+    --sidebar-active: #7c3aed;
+    --card-bg: #ffffff;
+    --card-border: #e0e7ff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --progress-bg: #e0e7ff;
+    --button-text: #ffffff;
+  }
+
+  [data-theme="dark"] {
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e293b;
+    --sidebar-bg: #1f2937;
+    --sidebar-text: #d1d5db;
+    --sidebar-hover: #374151;
+    --sidebar-active: #a78bfa;
+    --card-bg: #111827;
+    --card-border: #374151;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --progress-bg: #374151;
+    --button-text: #f9fafb;
+  }
+
+  html { font-family: 'Poppins', sans-serif; }
+  #theme-root {
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    color: var(--text-secondary);
+    transition: background 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  .dashboard-layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px;
+    background: var(--sidebar-bg);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid var(--card-border);
+  }
+  .sidebar-logo img { width: 80px; }
+  .sidebar-nav { width: 100%; margin-top: 24px; display: flex; flex-direction: column; }
+  .sidebar-link {
+    text-decoration: none;
+    padding: 12px 24px;
+    color: var(--sidebar-text);
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+  }
+  .sidebar-link:hover, .sidebar-link.active {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-active);
+  }
+  .theme-toggle {
+    margin-top: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--card-border);
+    background: none;
+    color: var(--sidebar-text);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .main-content { flex: 1; padding: 40px; }
+  .skills-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+
+  .form-control {
+    max-width: 400px;
+    margin-bottom: 10px;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  .skill-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .skill-card:hover {
+    transform: translateY(-4px);
+  }
+  .skill-card h5 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .skill-card p {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  .archived { opacity: 0.6; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-layout" id="theme-root" data-theme="light">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="{% static 'assets/images/img_header_logo.png' %}" alt="Logo">
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'dashboard' %}" class="sidebar-link">🏠 Dashboard</a>
+      <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>
+      <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
+      <a href="{% url 'logout' %}" class="sidebar-link">🔓 Logout</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle-btn">🌙 Dark Mode</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Active Skills -->
+    <div class="skills-header">
+ <h3 class="mt-4">🟢 Active Skills</h3>
+    <div class="row">
+      {% for user_skill in active_user_skills %}
+        <div class="col-md-4 mb-3">
+          <div class="card border-primary shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ user_skill.skill.title }}</h5>
+              <p class="card-text">XP Earned: {{ user_skill.xp_earned }}</p>
+
+              <!-- ✅ Continue Button -->
+              <a href="{% url 'skill_detail' user_skill.skill.slug %}" class="btn btn-success btn-sm mb-1">
+                ▶️ Continue
+              </a>
+
+              <!-- 📦 Archive Button -->
+              <form method="post" action="{% url 'archive_skill' user_skill.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-sm mb-1">📦 Archive</button>
+              </form>
+
+              <!-- 🗑 Delete Button -->
+              <form method="post" action="{% url 'delete_skill' user_skill.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm mb-1">🗑 Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info">No active skills yet. Start one above!</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Skill Input Form -->
+    <div class="skills-header">
+      <h1>➕ Add New Skill</h1>
+      <form method="post" action="{% url 'skills' %}" class="skills-form">
+        {% csrf_token %}
+        <input type="text" name="skill_slug" class="form-control" placeholder="Enter skill name" list="skill-options">
+        <datalist id="skill-options">
+          {% for skill in available_skills %}
+            <option value="{{ skill.slug }}">{{ skill.title }}</option>
+          {% endfor %}
+        </datalist>
+        <button type="submit" class="btn btn-primary">Start Learning</button>
+      </form>
+    </div>
+
+    <!-- Archived Skills -->
+  <div class="skills-header mt-4">
+    <h4 class="mt-4">📦 Archived Skills</h4>
+    <div class="row">
+      {% for user_skill in archived_user_skills %}
+        <div class="col-md-4 mb-3">
+          <div class="card border-secondary shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">{{ user_skill.skill.title }}</h5>
+              <p class="card-text text-muted">XP: {{ user_skill.xp_earned }}</p>
+              <div class="d-flex justify-content-between">
+                <!-- 🗑 Delete Button -->
+                <form method="post" action="{% url 'delete_skill' user_skill.id %}" onsubmit="return confirm('Are you sure you want to delete this skill?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">🗑 Delete</button>
+                </form>
+
+                <!-- 📥 Download Button -->
+                <form method="get" action="{% url 'download_skill_data' user_skill.id %}">
+                  <button type="submit" class="btn btn-outline-primary btn-sm">📥 Download</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-light">No archived skills yet.</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  </main>
+</div>
+
+<script>
+  const root = document.getElementById('theme-root');
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  root.setAttribute('data-theme', savedTheme);
+  toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+  toggleBtn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    toggleBtn.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  });
+</script>
+{% endblock %}

@@ -1,7 +1,6 @@
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
-
+from django.conf import settings
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
@@ -43,7 +42,6 @@ class UserSkill(models.Model):
 
 
 class Activity(models.Model):
-    # Suggested types (you can add more freely)
     LESSON_COMPLETED = "lesson_completed"
     QUIZ_ATTEMPTED = "quiz_attempted"
     XP_AWARDED = "xp_awarded"
@@ -64,7 +62,7 @@ class Activity(models.Model):
     skill = models.ForeignKey(Skill, null=True, blank=True, on_delete=models.SET_NULL)
     type = models.CharField(max_length=50, choices=TYPE_CHOICES)
     xp_delta = models.IntegerField(default=0)
-    payload = models.JSONField(default=dict, blank=True)  # flexible: quiz score, lesson id, answers, etc.
+    payload = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -74,7 +72,7 @@ class Activity(models.Model):
         return f"{self.user.username} - {self.type} ({self.xp_delta:+}) @ {self.created_at:%Y-%m-%d %H:%M}"
 
 
-class QuizAttempt(models.Model):  # Optional but handy to query attempts directly
+class QuizAttempt(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="quiz_attempts")
     skill = models.ForeignKey(Skill, null=True, blank=True, on_delete=models.SET_NULL)
     title = models.CharField(max_length=200)
@@ -92,3 +90,50 @@ class QuizAttempt(models.Model):  # Optional but handy to query attempts directl
 
     def __str__(self):
         return f"{self.user.username} - {self.title} ({self.score}/{self.max_score})"
+
+
+class Flashcard(models.Model):
+    user_skill = models.ForeignKey(UserSkill, on_delete=models.CASCADE, null=True, blank=True)
+    front_text = models.TextField()
+    back_text = models.TextField()
+    created_on = models.DateField(default=timezone.now)  # ✅ add default here
+
+    def __str__(self):
+        return f"Flashcard for {self.user_skill} on {self.created_on}"
+
+class Quiz(models.Model):
+    user_skill = models.ForeignKey(UserSkill, on_delete=models.CASCADE)
+    question_text = models.TextField()
+    correct_answer = models.CharField(max_length=255)
+    option_1 = models.CharField(max_length=255)
+    option_2 = models.CharField(max_length=255)
+    option_3 = models.CharField(max_length=255)
+    option_4 = models.CharField(max_length=255)
+    created_on = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"Quiz for {self.user_skill} on {self.created_on}"
+
+
+class XPLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    xp_amount = models.PositiveIntegerField()
+    reason = models.CharField(max_length=255)
+    awarded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} earned {self.xp_amount} XP for {self.reason}"
+
+class LearningSession(models.Model):
+    user_skill = models.ForeignKey(UserSkill, on_delete=models.CASCADE, related_name='learning_sessions')
+    date = models.DateField()
+    flashcards_json = models.JSONField(default=list, blank=True)
+    quiz_json = models.JSONField(default=list, blank=True)
+    completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user_skill', 'date')
+
+    def __str__(self):
+        return f"{self.user_skill} on {self.date}"

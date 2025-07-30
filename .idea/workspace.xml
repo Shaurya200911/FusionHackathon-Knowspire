@@ -4,24 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/knowspire/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/middleware.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/streaks.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/signals.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/dashboard.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/leaderboard.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/knowspire/userauth/test_streaks.py" afterDir="false" />
+    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Website 1.0[Dashboard,Streak,Xp,Leaderboard]">
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/secrets.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/skills.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/start_skill.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/services/xp_log.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/skill_detail.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/knowspire/userauth/templates/skills.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/knowspire/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/knowspire/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/userauth/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/userauth/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/userauth/templates/paywall.html" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/templates/paywall.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/userauth/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/templates/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/templates/dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/views.py" afterDir="false" />
     </list>
@@ -33,13 +26,15 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
+        <option value="Test" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -61,6 +56,7 @@
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\" />
+      <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\tests" />
       <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\services" />
     </key>
   </component>
@@ -79,6 +75,31 @@
       <option name="presentableId" value="Default" />
       <updated>1752736681474</updated>
     </task>
+    <task id="LOCAL-00001" summary="Website 1.0[Dashboard,Streak,Xp,Leaderboard]">
+      <option name="closed" value="true" />
+      <created>1753622492573</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1753622492573</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Base Website[Home+Login+Paywall]" />
+    <MESSAGE value="Website 1.0[Dashboard,Streak,Xp,Leaderboard]" />
+    <option name="LAST_COMMIT_MESSAGE" value="Website 1.0[Dashboard,Streak,Xp,Leaderboard]" />
   </component>
 </project>
