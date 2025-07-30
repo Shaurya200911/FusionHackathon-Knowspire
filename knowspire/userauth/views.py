@@ -207,24 +207,40 @@ def start_skill_view(request):
             messages.error(request, f"Could not activate skill: {e}")
     return redirect("skills")
 
+
 @login_required
 def skill_detail_view(request, slug):
+    user = request.user
+    today = timezone.now().date()
+
+    # Get skill
     skill = get_object_or_404(Skill, slug=slug)
-    user_skill = get_object_or_404(UserSkill, user=request.user, skill=skill)
 
-    today = date.today()
+    # Get user's skill instance
+    user_skill = get_object_or_404(UserSkill, user=user, skill=skill)
 
-    # Ensure today’s flashcard and quiz are created or fetched
+    # Redirect if skill is archived
+    if not user_skill.is_active:
+        return redirect("skills")
+
+    # Ensure today’s flashcard and quiz are created or reused
     flashcard, quiz = ensure_today_content(user_skill, today)
 
-    context = {
+    # Prepare quiz options as list for template (required for Django templates)
+    options = [
+        quiz.option_1,
+        quiz.option_2,
+        quiz.option_3,
+        quiz.option_4
+    ]
+
+    return render(request, "skill_detail.html", {
         "skill": skill,
         "user_skill": user_skill,
         "flashcard": flashcard,
         "quiz": quiz,
-    }
-    return render(request, "skill_detail.html", context)
-
+        "options": options
+    })
 # views.py
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
