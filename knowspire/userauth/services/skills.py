@@ -5,34 +5,9 @@ from django.db import transaction
 from django.utils import timezone
 
 from userauth.models import (
-    Activity,
     Skill,
     UserSkill,
-    QuizAttempt,
 )
-
-# --------------------------------------------
-# 🔹 Activity & XP Management Utilities
-# --------------------------------------------
-
-def log_activity(*, user, type, xp_delta=0, skill=None, payload=None):
-    if payload is None:
-        payload = {}
-    return Activity.objects.create(
-        user=user,
-        skill=skill,
-        type=type,
-        xp_delta=xp_delta,
-        payload=payload,
-    )
-
-@transaction.atomic
-def award_xp(user, amount, *, skill=None, source="generic", extra=None):
-    if extra is None:
-        extra = {}
-    extra["source"] = source
-    return log_activity(user=user, type=Activity.XP_AWARDED, skill=skill, xp_delta=amount, payload=extra)
-
 
 # --------------------------------------------
 # 🔹 Skill Completion Handler

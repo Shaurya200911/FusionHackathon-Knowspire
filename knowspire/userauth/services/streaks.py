@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from userauth.models import UserProfile, Activity
+from userauth.models import UserProfile
 
 BASE_DAILY_XP = 5
 BONUS_EVERY = 5
@@ -74,16 +74,6 @@ def apply_daily_streak(user, *, now=None):
     profile.save(update_fields=[
         "current_streak", "longest_streak", "xp_total", "last_activity_at"
     ])
-
-    Activity.objects.create(
-        user=user,
-        type=Activity.STREAK_UPDATED,
-        xp_delta=xp_gain,
-        payload={
-            "streak": profile.current_streak,
-            "bonus": (xp_gain > BASE_DAILY_XP),
-        },
-    )
 
     if DEBUG_STREAK:
         print(f"[apply_daily_streak] UPDATED -> streak={profile.current_streak}, "

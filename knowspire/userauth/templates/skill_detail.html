@@ -14,7 +14,6 @@
     --sidebar-text: #000000;
     --sidebar-hover: #e2e8f0;
   }
-
   [data-theme="dark"] {
     --bg: #0d1117;
     --text: #ffffff;
@@ -24,17 +23,10 @@
     --sidebar-text: #ffffff;
     --sidebar-hover: #334155;
   }
-
-  html, body {
-    background-color: var(--bg);
-    color: var(--text);
-  }
-  .flashcard, .quiz-block, .lesson-item {
-    background: var(--card-bg);
-    border: 1px solid var(--accent);
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+  html, body, #theme-root {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    transition: background 0.3s, color 0.3s;
   }
   .dashboard-layout {
     display: flex;
@@ -59,9 +51,16 @@
   .main-content {
     flex-grow: 1;
     padding: 40px;
+    background: none;
+    color: var(--text);
   }
   .theme-toggle {
     margin-top: 20px;
+  }
+  .alert-info {
+    background: var(--card-bg) !important;
+    color: var(--text) !important;
+    border-color: var(--accent) !important;
   }
 </style>
 {% endblock %}
@@ -73,23 +72,14 @@
       <img src="{% static 'assets/images/img_header_logo.png' %}" width="80" alt="Logo">
     </div>
     <a href="{% url 'dashboard' %}" class="sidebar-link">🏠 Dashboard</a>
-    <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
-    <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>
+    <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>    <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
     <a href="{% url 'logout' %}" class="sidebar-link" id="logout-link">🔓 Logout</a>
     <button class="theme-toggle btn btn-outline-secondary w-100" id="theme-toggle-btn">🌙 Toggle Theme</button>
   </div>
   <div class="main-content">
     <div class="container" id="session-container">
-      <h2 class="mb-4">{{ skill.title }} – Lessons, Flashcards & Quizzes</h2>
-      <!-- Lessons -->
-      <h4>Lessons</h4>
-      <div class="alert alert-warning">Lesson backend not implemented. No lessons available.</div>
-      <!-- Flashcards -->
-      <h4>Flashcards</h4>
-      <div class="alert alert-warning">Flashcard backend not implemented. No flashcards available.</div>
-      <!-- Quizzes -->
-      <h4>Quizzes</h4>
-      <div class="alert alert-warning">Quiz backend not implemented. No quizzes available.</div>
+      <h2 class="mb-4">{{ skill.title }}</h2>
+      <div class="alert alert-info">No content available for this skill. (Lessons, flashcards, and quizzes are not implemented in the current version.)</div>
     </div>
   </div>
 </div>
@@ -97,72 +87,23 @@
   // Theme toggle
   const root = document.getElementById('theme-root');
   const toggleBtn = document.getElementById('theme-toggle-btn');
-  const savedTheme = localStorage.getItem('theme') || 'light';
+  const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   root.setAttribute('data-theme', savedTheme);
   toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-  toggleBtn.addEventListener('click', () => {
-    const current = root.getAttribute('data-theme');
-    const next = current === 'light' ? 'dark' : 'light';
+  function setTheme(next) {
     root.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     toggleBtn.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  }
+  toggleBtn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    setTheme(next);
   });
-
-  // Flashcard show/hide
-  document.querySelectorAll('.show-back').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const span = this.closest('.mt-2').querySelector('.back-text');
-      if (span.style.display === 'none') {
-        span.style.display = 'inline';
-        this.textContent = 'Hide';
-      } else {
-        span.style.display = 'none';
-        this.textContent = 'Show';
-      }
-    });
-  });
-
-  // Quiz submit
-  document.querySelectorAll('.submit-quiz').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const form = this.closest('form');
-      const correct = this.getAttribute('data-correct');
-      const selected = form.querySelector('input[type=radio]:checked');
-      const result = form.querySelector('.quiz-result');
-      if (!selected) {
-        result.textContent = 'Select an answer!';
-        result.style.color = 'orange';
-        return;
-      }
-      if (selected.value === correct) {
-        result.textContent = '✅ Correct!';
-        result.style.color = 'green';
-      } else {
-        result.textContent = '❌ Incorrect! Correct: ' + correct;
-        result.style.color = 'red';
-      }
-    });
-  });
-  // Lesson quiz submit
-  document.querySelectorAll('.submit-lesson-quiz').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const form = this.closest('form');
-      const correct = this.getAttribute('data-correct');
-      const selected = form.querySelector('input[type=radio]:checked');
-      const result = form.querySelector('.lesson-quiz-result');
-      if (!selected) {
-        result.textContent = 'Select an answer!';
-        result.style.color = 'orange';
-        return;
-      }
-      if (selected.value === correct) {
-        result.textContent = '✅ Correct!';
-        result.style.color = 'green';
-      } else {
-        result.textContent = '❌ Incorrect! Correct: ' + correct;
-        result.style.color = 'red';
-      }
-    });
+  // Listen for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    const systemTheme = e.matches ? 'dark' : 'light';
+    if (!localStorage.getItem('theme')) setTheme(systemTheme);
   });
   document.getElementById('logout-link').addEventListener('click', function(e) {
     // No preventDefault, just follow the link (GET request)
