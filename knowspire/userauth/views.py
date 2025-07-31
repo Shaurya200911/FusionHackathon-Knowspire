@@ -6,9 +6,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .services.skills import generate_content_if_needed
 from datetime import date
-from .models import Flashcard, Quiz, LessonItem
-from .services.skills import generate_lessons_for_user_skill
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -24,7 +22,6 @@ from django.shortcuts import get_object_or_404
 from .services.start_skill import start_skill
 from .models import Activity, UserSkill, UserProfile, Skill
 from .services.streaks import apply_daily_streak
-from .services.skills import ensure_today_content
 import json
 
 # Create your views here.
@@ -143,30 +140,21 @@ def dashboard_view(request):
 
 @login_required
 def leaderboard_view(request):
-    # Annotate total XP from XPLog
-    user_xp_data = (
-        XPLog.objects
-        .values('user')
-        .annotate(total_xp=Sum('xp_amount'))
-        .order_by('-total_xp')[:50]
+    # Get all profiles ordered by xp_total descending
+    profiles = (
+        UserProfile.objects
+        .select_related("user")
+        .order_by("-xp_total")
     )
 
-    # Get user objects and profiles
-    user_ids = [entry['user'] for entry in user_xp_data]
-    users = User.objects.in_bulk(user_ids)
-    profiles = UserProfile.objects.in_bulk(user_ids)
-
-    # Join into final leaderboard list
-    leaderboard = []
-    for entry in user_xp_data:
-        user = users.get(entry['user'])
-        profile = profiles.get(entry['user'])
-        if user and profile:
-            leaderboard.append({
-                "user": user,
-                "xp_total": entry['total_xp'],
-                "current_streak": profile.current_streak
-            })
+    leaderboard = [
+        {
+            "user": profile.user,
+            "xp_total": profile.xp_total,
+            "current_streak": profile.current_streak
+        }
+        for profile in profiles
+    ]
 
     return render(request, 'leaderboard.html', {
         "top_users": leaderboard,
@@ -214,72 +202,9 @@ def start_skill_view(request):
 @login_required
 def skill_detail_view(request, slug):
     skill = get_object_or_404(Skill, slug=slug)
-    user_skill, _ = UserSkill.objects.get_or_create(user=request.user, skill=skill)
-
-    # Always ensure content exists (flashcards, quizzes, lessons)
-    session = generate_content_if_needed(user_skill)
-
-    # Dynamically generate lessons if not present
-    if not LessonItem.objects.filter(user_skill=user_skill).exists():
-        from .services.skills import generate_lessons_for_user_skill
-        generate_lessons_for_user_skill(user_skill)
-
-    # Get all flashcards, quizzes, and lessons for this user_skill
-    flashcards = Flashcard.objects.filter(user_skill=user_skill)
-    quizzes = Quiz.objects.filter(user_skill=user_skill)
-    lessons = LessonItem.objects.filter(user_skill=user_skill)
-
+    # No backend for lessons/flashcards/quizzes; only pass skill object
     return render(request, "skill_detail.html", {
-        "skill": skill,
-        "flashcards": list(flashcards.values()),
-        "quizzes": list(quizzes.values()),
-        "lessons": list(lessons.values())
-    })
-# views.py
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from .models import Quiz, QuizAttempt, XPLog, UserSkill
-
-@require_POST
-@login_required
-def submit_quiz_view(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    user = request.user
-    answer = request.POST.get('answer')
-
-    # Prevent re-submission
-    if QuizAttempt.objects.filter(user=user, quiz=quiz).exists():
-        return JsonResponse({"status": "error", "message": "Already attempted."})
-
-    is_correct = (answer == quiz.correct_answer)
-
-    # Log attempt
-    QuizAttempt.objects.create(
-        user=user,
-        quiz=quiz,
-        selected_answer=answer,
-        is_correct=is_correct
-    )
-
-    # Award XP and update progress if correct
-    if is_correct:
-        user_skill = quiz.user_skill
-        user_skill.xp_earned += 5
-        user_skill.progress_pct += 5  # optional logic
-        user_skill.save()
-
-        XPLog.objects.create(
-            user=user,
-            skill=user_skill.skill,
-            xp_amount=5,
-            reason="Quiz Correct",
-        )
-
-    return JsonResponse({
-        "status": "success",
-        "is_correct": is_correct,
-        "correct_answer": quiz.correct_answer,
-        "xp_awarded": 5 if is_correct else 0
+        "skill": skill
     })
 
 @login_required
@@ -303,27 +228,18 @@ def delete_skill(request, user_skill_id):
 @login_required
 def download_skill_data(request, user_skill_id):
     user_skill = get_object_or_404(UserSkill, id=user_skill_id, user=request.user)
-
-    flashcards = Flashcard.objects.filter(user_skill=user_skill)
-    quizzes = Quiz.objects.filter(user_skill=user_skill)
-
+    # No flashcards or quizzes to download, return minimal data
     data = {
         "skill": user_skill.skill.title,
-        "flashcards": [
-            {"front": fc.front_text, "back": fc.back_text}
-            for fc in flashcards
-        ],
-        "quizzes": [
-            {
-                "question": q.question_text,
-                "options": [q.option_1, q.option_2, q.option_3, q.option_4],
-                "correct": q.correct_answer
-            }
-            for q in quizzes
-        ]
+        "flashcards": [],
+        "quizzes": []
     }
 
     response = HttpResponse(json.dumps(data, indent=2), content_type="application/json")
     filename = f"{user_skill.skill.slug}_data.json"
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
+
+def logout_view(request):
+    logout(request)
+    return redirect("home")

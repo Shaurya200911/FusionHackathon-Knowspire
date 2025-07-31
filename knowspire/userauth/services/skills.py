@@ -5,14 +5,10 @@ from django.db import transaction
 from django.utils import timezone
 
 from userauth.models import (
-    Flashcard,
-    Quiz,
     Activity,
     Skill,
     UserSkill,
     QuizAttempt,
-    LessonItem,
-    LearningSession,
 )
 
 # --------------------------------------------
@@ -62,44 +58,11 @@ def complete_skill(user, skill_slug):
 # 🔹 Content Generation Utilities (No API)
 # --------------------------------------------
 
-def create_fallback_flashcard(user_skill, today):
-    return Flashcard.objects.create(
-        user_skill=user_skill,
-        front_text="Fallback term",
-        back_text="This is a fallback definition due to an API issue.",
-        created_on=today
-    )
-
-def create_fallback_quiz(user_skill, today):
-    return Quiz.objects.create(
-        user_skill=user_skill,
-        question_text="What is the capital of France?",
-        option_1="Berlin",
-        option_2="Madrid",
-        option_3="Paris",
-        option_4="Rome",
-        correct_answer="Paris",
-        created_on=today
-    )
-
+# All content generation and retrieval logic removed.
+# Placeholder functions for future implementation.
 
 def generate_content_if_needed(user_skill):
     """
-    Generate flashcards, quizzes, and lesson items for today if not already created.
-    Returns the LearningSession object.
+    Placeholder: Content generation is disabled.
     """
-    today = date.today()
-
-    # Check if session exists
-    session, created = LearningSession.objects.get_or_create(user_skill=user_skill, date=today)
-
-    if created:
-        # Nothing was created yet, use fallback content
-        try:
-            flashcard = create_fallback_flashcard(user_skill, today)
-            quiz = create_fallback_quiz(user_skill, today)
-        except Exception as e:
-            print("[CONTENT GENERATION ERROR]:", e)
-            # Optional: Log the error or mark the session as failed
-
-    return session
+    return None

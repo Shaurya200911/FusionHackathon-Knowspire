@@ -178,10 +178,9 @@
       <a href="#" class="sidebar-link active">🏠 Dashboard</a>
       <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆Leaderboard</a>
       <a href="{% url 'skills' %}" class="sidebar-link">📘 Skills</a>
-      <a href="{% url 'logout' %}" class="sidebar-link">🔓 Logout</a>
+      <a href="{% url 'logout' %}" class="sidebar-link" id="logout-link">🔓 Logout</a>
     </nav>
     <button class="theme-toggle" id="theme-toggle-btn">🌙 Dark Mode</button>
-
   </aside>
 
   <!-- Main Content -->
@@ -236,7 +235,6 @@
     </section>
   </main>
 </div>
-
 <script>
   const root = document.getElementById('theme-root');
   const toggleBtn = document.getElementById('theme-toggle-btn');
@@ -250,6 +248,10 @@
     root.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     toggleBtn.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  });
+
+  document.getElementById('logout-link').addEventListener('click', function(e) {
+    // No preventDefault, just follow the link (GET request)
   });
 </script>
 {% endblock %}
