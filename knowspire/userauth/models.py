@@ -137,3 +137,20 @@ class LearningSession(models.Model):
 
     def __str__(self):
         return f"{self.user_skill} on {self.date}"
+
+class LessonItem(models.Model):
+    user_skill = models.ForeignKey(UserSkill, on_delete=models.CASCADE)
+    order = models.IntegerField()
+    type = models.CharField(max_length=10, choices=[('teach', 'Teach'), ('test', 'Test')])
+    content = models.TextField()        # For 'teach': explanation text
+    question = models.TextField(blank=True, null=True)  # For 'test': question
+    option_1 = models.TextField(blank=True, null=True)
+    option_2 = models.TextField(blank=True, null=True)
+    option_3 = models.TextField(blank=True, null=True)
+    option_4 = models.TextField(blank=True, null=True)
+    correct_answer = models.TextField(blank=True, null=True)
+    created_on = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order"]
+

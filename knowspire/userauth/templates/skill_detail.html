@@ -26,252 +26,213 @@
   }
 
   html, body {
-    background-color: var(--bg) !important;
-    color: var(--text);
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-
-  h1, h2, h3, h4, h5, h6,
-  p, a, label, span, input, button,
-  .flashcard, .quiz-block, .xp-label,
-  .main-content, .content-wrapper {
-    color: var(--text);
-  }
-
-  .sidebar {
-    width: 240px;
-    background-color: var(--sidebar-bg);
-    min-height: 100vh;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sidebar a {
-    color: var(--sidebar-text);
-    padding: 12px 20px;
-    display: block;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .sidebar a:hover,
-  .sidebar a.active {
-    background-color: var(--sidebar-hover);
-    color: var(--accent);
-  }
-
-  .sidebar-collapsed {
-    width: 0 !important;
-    overflow: hidden;
-  }
-
-  .theme-toggle-btn {
-    margin-top: auto;
-    margin-bottom: 20px;
-    align-self: center;
-  }
-
-  .dashboard-layout {
-    display: flex;
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--bg);
-  }
-
-  .main-content {
-    transition: margin-left 0.3s ease;
-    flex: 1;
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    padding: 3rem 2rem;
     background-color: var(--bg);
     color: var(--text);
   }
-
-  .main-content.expanded {
-    margin-left: 240px;
-  }
-
-  .content-wrapper {
-    max-width: 750px;
-    width: 100%;
-    color: var(--text);
-  }
-
-  .flashcard, .quiz-block {
+  .flashcard, .quiz-block, .lesson-item {
     background: var(--card-bg);
     border: 1px solid var(--accent);
-    padding: 30px;
+    padding: 20px;
     border-radius: 10px;
-    margin-bottom: 30px;
-    transition: transform 0.3s ease;
-    color: var(--text);
+    margin-bottom: 20px;
   }
-
-  .flashcard:hover {
-    transform: scale(1.02);
+  .dashboard-layout {
+    display: flex;
   }
-
-  .flashcard .front, .flashcard .back {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text);
+  .sidebar {
+    width: 250px;
+    background-color: var(--sidebar-bg);
+    padding: 20px;
+    min-height: 100vh;
   }
-
-  .flashcard .back { display: none; }
-  .flashcard.flipped .front { display: none; }
-  .flashcard.flipped .back {
+  .sidebar-link {
     display: block;
-    color: var(--accent);
+    color: var(--sidebar-text);
+    padding: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    border-radius: 5px;
   }
-
-  .quiz-option {
-    margin: 10px 0;
-    color: var(--text);
-  }
-
-  .quiz-option input {
-    margin-right: 10px;
-  }
-
-  .progress-bar {
+  .sidebar-link:hover {
     background-color: var(--sidebar-hover);
-    height: 12px;
-    border-radius: 6px;
-    overflow: hidden;
   }
-
-  .progress-fill {
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
-    height: 100%;
-    width: {{ user_skill.progress_pct }}%;
+  .main-content {
+    flex-grow: 1;
+    padding: 40px;
   }
-
-  .xp-label {
-    font-weight: 600;
-    color: var(--accent);
-    margin-top: 10px;
-  }
-
-  #sidebarToggle {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 1000;
+  .theme-toggle {
+    margin-top: 20px;
   }
 </style>
-
 {% endblock %}
 
 {% block body %}
 <div id="theme-root" data-theme="light" class="dashboard-layout">
-  <!-- Sidebar -->
-  <div id="sidebar" class="sidebar">
+  <div class="sidebar">
     <div class="text-center mt-4">
       <img src="{% static 'assets/images/img_header_logo.png' %}" width="80" alt="Logo">
     </div>
-    <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
-    <a href="{% url 'skills' %}" class="active">📘 Skills</a>
-    <a href="{% url 'leaderboard' %}">🏆 Leaderboard</a>
-    <a href="{% url 'logout' %}">🔓 Logout</a>
-    <button class="btn btn-outline-secondary btn-sm theme-toggle-btn" id="theme-toggle-btn">🌙 Dark Mode</button>
+    <a href="{% url 'dashboard' %}" class="sidebar-link">🏠 Dashboard</a>
+    <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
+    <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>
+    <a href="{% url 'logout' %}" class="sidebar-link">🔓 Logout</a>
+    <button class="theme-toggle btn btn-outline-secondary w-100" id="theme-toggle-btn">🌙 Toggle Theme</button>
   </div>
-
-  <!-- Sidebar Toggle Button -->
-  <button class="btn btn-sm btn-secondary" id="sidebarToggle">☰</button>
-
-  <!-- Main Content -->
-  <div id="mainContent" class="main-content expanded">
-    <div class="content-wrapper">
-      <h2>{{ skill.title }} – Today's Session</h2>
-
-      <!-- Flashcard -->
-      <div class="flashcard" id="flashcard">
-        <div class="front">{{ flashcard.front_text }}</div>
-        <div class="back">{{ flashcard.back_text }}</div>
-      </div>
-
-      <!-- Quiz -->
-      <div class="quiz-block">
-        <h4>{{ quiz.question_text }}</h4>
-        <form method="post" id="quiz-form" action="{% url 'submit_quiz' quiz.id %}">
-          {% csrf_token %}
-          {% for option in options %}
-          <div class="quiz-option">
-            <label>
-              <input type="radio" name="answer" value="{{ option }}" required>
-              {{ option }}
-            </label>
+  <div class="main-content">
+    <div class="container" id="session-container">
+      <h2 class="mb-4">{{ skill.title }} – Lessons, Flashcards & Quizzes</h2>
+      <!-- Lessons -->
+      <h4>Lessons</h4>
+      <div class="row">
+        {% for ls in lessons %}
+        <div class="col-md-12">
+          <div class="lesson-item">
+            {% if ls.type == 'teach' %}
+              <h5>📚 Teaching Point</h5>
+              <p>{{ ls.content }}</p>
+            {% else %}
+              <div><strong>{{ ls.question }}</strong></div>
+              <form class="lesson-quiz-form mt-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="lessonquiz{{ forloop.counter }}" value="{{ ls.option_1 }}"> {{ ls.option_1 }}
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="lessonquiz{{ forloop.counter }}" value="{{ ls.option_2 }}"> {{ ls.option_2 }}
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="lessonquiz{{ forloop.counter }}" value="{{ ls.option_3 }}"> {{ ls.option_3 }}
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="lessonquiz{{ forloop.counter }}" value="{{ ls.option_4 }}"> {{ ls.option_4 }}
+                </div>
+                <button type="button" class="btn btn-success btn-sm mt-2 submit-lesson-quiz" data-correct="{{ ls.correct_answer }}">Submit</button>
+                <span class="lesson-quiz-result ms-2"></span>
+              </form>
+            {% endif %}
           </div>
-          {% endfor %}
-          <button type="submit" class="btn btn-success mt-2">Submit</button>
-        </form>
-        <div id="quiz-result" class="mt-2"></div>
+        </div>
+        {% empty %}
+        <div class="col-12">No lessons yet.</div>
+        {% endfor %}
       </div>
-
-      <!-- XP Progress -->
-      <div class="progress-bar mt-4">
-        <div class="progress-fill"></div>
+      <!-- Flashcards -->
+      <h4>Flashcards</h4>
+      <div class="row">
+        {% for fc in flashcards %}
+        <div class="col-md-6">
+          <div class="flashcard">
+            <div><strong>{{ fc.front_text }}</strong></div>
+            <div class="mt-2 text-muted">Answer: <span style="display:none;" class="back-text">{{ fc.back_text }}</span>
+              <button class="btn btn-sm btn-link show-back">Show</button>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">No flashcards yet.</div>
+        {% endfor %}
       </div>
-      <div class="xp-label">XP Earned: {{ user_skill.xp_earned }} – Progress: {{ user_skill.progress_pct }}%</div>
+      <!-- Quizzes -->
+      <h4>Quizzes</h4>
+      <div class="row">
+        {% for qz in quizzes %}
+        <div class="col-md-6">
+          <div class="quiz-block">
+            <div><strong>{{ qz.question_text }}</strong></div>
+            <form class="quiz-form mt-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="quiz{{ forloop.counter }}" value="{{ qz.option_1 }}"> {{ qz.option_1 }}
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="quiz{{ forloop.counter }}" value="{{ qz.option_2 }}"> {{ qz.option_2 }}
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="quiz{{ forloop.counter }}" value="{{ qz.option_3 }}"> {{ qz.option_3 }}
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="quiz{{ forloop.counter }}" value="{{ qz.option_4 }}"> {{ qz.option_4 }}
+              </div>
+              <button type="button" class="btn btn-success btn-sm mt-2 submit-quiz" data-correct="{{ qz.correct_answer }}">Submit</button>
+              <span class="quiz-result ms-2"></span>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">No quizzes yet.</div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Flashcard toggle
-  document.getElementById("flashcard").addEventListener("click", function () {
-    this.classList.toggle("flipped");
+  // Theme toggle
+  const root = document.getElementById('theme-root');
+  const toggleBtn = document.getElementById('theme-toggle-btn');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  root.setAttribute('data-theme', savedTheme);
+  toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+  toggleBtn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    toggleBtn.textContent = next === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
   });
 
-  // Sidebar Toggle
-  const sidebar = document.getElementById("sidebar");
-  const content = document.getElementById("mainContent");
-  const sidebarToggle = document.getElementById("sidebarToggle");
-  sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("sidebar-collapsed");
-    content.classList.toggle("expanded");
-  });
-
-  // Theme Toggle
-  const root = document.getElementById("theme-root");
-  const toggleBtn = document.getElementById("theme-toggle-btn");
-  const savedTheme = localStorage.getItem("theme") || "light";
-  root.setAttribute("data-theme", savedTheme);
-  toggleBtn.textContent = savedTheme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
-
-  toggleBtn.addEventListener("click", () => {
-    const current = root.getAttribute("data-theme");
-    const next = current === "light" ? "dark" : "light";
-    root.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-    toggleBtn.textContent = next === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
-  });
-
-  // Quiz AJAX
-  document.getElementById("quiz-form").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
-    const res = await fetch(form.action, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": form.querySelector('[name="csrfmiddlewaretoken"]').value
-      },
-      body: data
+  // Flashcard show/hide
+  document.querySelectorAll('.show-back').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const span = this.closest('.mt-2').querySelector('.back-text');
+      if (span.style.display === 'none') {
+        span.style.display = 'inline';
+        this.textContent = 'Hide';
+      } else {
+        span.style.display = 'none';
+        this.textContent = 'Show';
+      }
     });
-    const json = await res.json();
-    const result = document.getElementById("quiz-result");
-    if (json.is_correct) {
-      result.innerHTML = `<span style="color: var(--accent); font-weight: bold;">✅ Correct! +${json.xp_awarded} XP</span>`;
-    } else {
-      result.innerHTML = `<span style="color: tomato; font-weight: bold;">❌ Wrong! Correct answer: ${json.correct_answer}</span>`;
-    }
-    form.querySelector("button").disabled = true;
+  });
+
+  // Quiz submit
+  document.querySelectorAll('.submit-quiz').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const form = this.closest('form');
+      const correct = this.getAttribute('data-correct');
+      const selected = form.querySelector('input[type=radio]:checked');
+      const result = form.querySelector('.quiz-result');
+      if (!selected) {
+        result.textContent = 'Select an answer!';
+        result.style.color = 'orange';
+        return;
+      }
+      if (selected.value === correct) {
+        result.textContent = '✅ Correct!';
+        result.style.color = 'green';
+      } else {
+        result.textContent = '❌ Incorrect! Correct: ' + correct;
+        result.style.color = 'red';
+      }
+    });
+  });
+  // Lesson quiz submit
+  document.querySelectorAll('.submit-lesson-quiz').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const form = this.closest('form');
+      const correct = this.getAttribute('data-correct');
+      const selected = form.querySelector('input[type=radio]:checked');
+      const result = form.querySelector('.lesson-quiz-result');
+      if (!selected) {
+        result.textContent = 'Select an answer!';
+        result.style.color = 'orange';
+        return;
+      }
+      if (selected.value === correct) {
+        result.textContent = '✅ Correct!';
+        result.style.color = 'green';
+      } else {
+        result.textContent = '❌ Incorrect! Correct: ' + correct;
+        result.style.color = 'red';
+      }
+    });
   });
 </script>
 {% endblock %}

@@ -4,7 +4,10 @@ from django.core.mail import send_mail
 from .forms import ContactForm
 from django.contrib import messages
 from django.db.models import Q
+from .services.skills import generate_content_if_needed
 from datetime import date
+from .models import Flashcard, Quiz, LessonItem
+from .services.skills import generate_lessons_for_user_skill
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -210,36 +213,27 @@ def start_skill_view(request):
 
 @login_required
 def skill_detail_view(request, slug):
-    user = request.user
-    today = timezone.now().date()
-
-    # Get skill
     skill = get_object_or_404(Skill, slug=slug)
+    user_skill, _ = UserSkill.objects.get_or_create(user=request.user, skill=skill)
 
-    # Get user's skill instance
-    user_skill = get_object_or_404(UserSkill, user=user, skill=skill)
+    # Always ensure content exists (flashcards, quizzes, lessons)
+    session = generate_content_if_needed(user_skill)
 
-    # Redirect if skill is archived
-    if not user_skill.is_active:
-        return redirect("skills")
+    # Dynamically generate lessons if not present
+    if not LessonItem.objects.filter(user_skill=user_skill).exists():
+        from .services.skills import generate_lessons_for_user_skill
+        generate_lessons_for_user_skill(user_skill)
 
-    # Ensure today’s flashcard and quiz are created or reused
-    flashcard, quiz = ensure_today_content(user_skill, today)
-
-    # Prepare quiz options as list for template (required for Django templates)
-    options = [
-        quiz.option_1,
-        quiz.option_2,
-        quiz.option_3,
-        quiz.option_4
-    ]
+    # Get all flashcards, quizzes, and lessons for this user_skill
+    flashcards = Flashcard.objects.filter(user_skill=user_skill)
+    quizzes = Quiz.objects.filter(user_skill=user_skill)
+    lessons = LessonItem.objects.filter(user_skill=user_skill)
 
     return render(request, "skill_detail.html", {
         "skill": skill,
-        "user_skill": user_skill,
-        "flashcard": flashcard,
-        "quiz": quiz,
-        "options": options
+        "flashcards": list(flashcards.values()),
+        "quizzes": list(quizzes.values()),
+        "lessons": list(lessons.values())
     })
 # views.py
 from django.views.decorators.http import require_POST
