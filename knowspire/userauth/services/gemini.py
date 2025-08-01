@@ -9,7 +9,10 @@ model = genai.GenerativeModel(model_name="models/gemini-2.0-flash")
 def generate_lessons(skill_slug, mode="continue", minutes=20, previous_content=None):
     context = "" if not previous_content else f"Previously covered: {previous_content}\n"
     prompt = (
-        f"{context}Generate {minutes}-minute learning lessons for the skill '{skill_slug}' in {mode} mode. "
+        f"You are an expert tutor. The user is learning '{skill_slug}'. "
+        f"Here is what you taught last time: {previous_content if previous_content else 'None'}\n"
+        f"Your job: Based on what was taught previously, decide what is the best next topic or concept to teach in the allotted time ({minutes} minutes). "
+        f"Generate a {minutes}-minute lesson that builds on prior knowledge, covers the most relevant next concepts, and avoids unnecessary repetition. "
         "Format: Each lesson as a separate block, with explanation, examples, and summary only. "
         "Do NOT include greetings, introductions, or any text before the actual lesson content. "
         "Do NOT repeat concepts already covered unless mode is 'revision'. "
