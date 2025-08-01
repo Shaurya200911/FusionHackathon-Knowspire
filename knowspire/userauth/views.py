@@ -8,6 +8,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegisterForm
 from django.utils import timezone
 from .models import UserProfile, Skill, UserSkill
+from django.db import IntegrityError, transaction
+from django.db import connection
 import json
 
 # Login
@@ -157,8 +159,23 @@ def delete_skill(request, user_skill_id):
     if request.method == "POST":
         user_skill = get_object_or_404(UserSkill, id=user_skill_id, user=request.user)
         skill_title = user_skill.skill.title
-        user_skill.delete()
-        messages.success(request, f"Skill '{skill_title}' deleted.")
+        try:
+            with transaction.atomic():
+                cursor = connection.cursor()
+                # Clean up legacy/related tables for this user_skill
+                for table in ["flashcard", "quiz", "lessonitem"]:
+                    try:
+                        cursor.execute(f"DELETE FROM {table} WHERE user_skill_id = %s", [user_skill_id])
+                    except Exception:
+                        pass
+                # Delete the user_skill
+                user_skill.delete()
+                # If there are no more UserSkills for this skill, delete the Skill itself
+                if not UserSkill.objects.filter(skill=user_skill.skill).exists():
+                    user_skill.skill.delete()
+            messages.success(request, f"Skill '{skill_title}' deleted.")
+        except IntegrityError:
+            messages.error(request, f"Could not delete skill '{skill_title}' due to related data. Please contact support or clean up related data.")
     return redirect("skills")
 
 @login_required
