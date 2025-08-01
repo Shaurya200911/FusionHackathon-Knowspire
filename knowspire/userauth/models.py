@@ -29,6 +29,7 @@ class UserSkill(models.Model):
     xp_earned = models.PositiveIntegerField(default=0)
     started_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True, blank=True)
+    total_minutes_spent = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = ("user", "skill")

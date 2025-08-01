@@ -62,6 +62,8 @@
     color: var(--text) !important;
     border-color: var(--accent) !important;
   }
+  .carousel-item { display: none; }
+  .carousel-item.active { display: block; }
 </style>
 {% endblock %}
 
@@ -72,17 +74,82 @@
       <img src="{% static 'assets/images/img_header_logo.png' %}" width="80" alt="Logo">
     </div>
     <a href="{% url 'dashboard' %}" class="sidebar-link">🏠 Dashboard</a>
-    <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>    <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
+    <a href="{% url 'leaderboard' %}" class="sidebar-link">🏆 Leaderboard</a>
+    <a href="{% url 'skills' %}" class="sidebar-link active">📘 Skills</a>
     <a href="{% url 'logout' %}" class="sidebar-link" id="logout-link">🔓 Logout</a>
     <button class="theme-toggle btn btn-outline-secondary w-100" id="theme-toggle-btn">🌙 Toggle Theme</button>
   </div>
   <div class="main-content">
     <div class="container" id="session-container">
       <h2 class="mb-4">{{ skill.title }}</h2>
-      <div class="alert alert-info">No content available for this skill. (Lessons, flashcards, and quizzes are not implemented in the current version.)</div>
+
+      {% if limit_reached %}
+        <div class="alert alert-warning">You’ve completed the full 25 hours for this skill. 🎓</div>
+      {% elif session_started %}
+        <div class="mb-5">
+          <h4>📘 Lessons</h4>
+          <div class="carousel" id="lesson-carousel">
+            {% for lesson in lessons %}
+              <div class="carousel-item card my-2 {% if forloop.first %}active{% endif %}">
+                <div class="card-body">{{ lesson }}</div>
+              </div>
+            {% endfor %}
+            <div class="d-flex justify-content-between mt-2">
+              <button class="btn btn-outline-primary" onclick="prevItem('lesson-carousel')">⬅️</button>
+              <button class="btn btn-outline-primary" onclick="nextItem('lesson-carousel')">➡️</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <h4>🧠 Flashcards</h4>
+          <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              {% for card in flashcards %}
+                <div class="col-md-4">
+                  <div class="flashcard card shadow-sm" onclick="flipCard(this)">
+                    <div class="card-body">
+                      <div class="flashcard-front">{{ card.question }}</div>
+                      <div class="flashcard-back" style="display:none;">{{ card.answer }}</div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <button type="submit" name="flashcard-submit" class="btn btn-success mt-3">I've completed all flashcards</button>
+          </form>
+        </div>
+
+        <div class="mb-5">
+          <h4>❓ Quizzes</h4>
+          <form method="post">
+            {% csrf_token %}
+            <div class="quiz-list">
+              {% for quiz in quizzes %}
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div class="mb-2 fw-bold">{{ quiz.question }}</div>
+                    {% for option in quiz.options %}
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="quiz-{{ forloop.counter0 }}" value="{{ option|slice:1|upper }}" id="quiz-{{ forloop.counter0 }}-{{ forloop.counter }}">
+                        <label class="form-check-label" for="quiz-{{ forloop.counter0 }}-{{ forloop.counter }}">{{ option }}</label>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <button type="submit" name="quiz-submit" class="btn btn-primary mt-3">Submit Answers</button>
+          </form>
+        </div>
+      {% else %}
+        <div class="alert alert-info">No content available for this skill. (Lessons, flashcards, and quizzes are not implemented in the current version.)</div>
+      {% endif %}
     </div>
   </div>
 </div>
+
 <script>
   // Theme toggle
   const root = document.getElementById('theme-root');
@@ -100,13 +167,39 @@
     const next = current === 'light' ? 'dark' : 'light';
     setTheme(next);
   });
-  // Listen for system theme changes
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     const systemTheme = e.matches ? 'dark' : 'light';
     if (!localStorage.getItem('theme')) setTheme(systemTheme);
   });
+
   document.getElementById('logout-link').addEventListener('click', function(e) {
-    // No preventDefault, just follow the link (GET request)
+    // default logout
   });
+
+  function nextItem(id) {
+    const items = document.querySelectorAll(`#${id} .carousel-item`);
+    const index = [...items].findIndex(i => i.classList.contains('active'));
+    items[index].classList.remove('active');
+    items[(index + 1) % items.length].classList.add('active');
+  }
+
+  function prevItem(id) {
+    const items = document.querySelectorAll(`#${id} .carousel-item`);
+    const index = [...items].findIndex(i => i.classList.contains('active'));
+    items[index].classList.remove('active');
+    items[(index - 1 + items.length) % items.length].classList.add('active');
+  }
+
+  function flipCard(card) {
+    const front = card.querySelector('.flashcard-front');
+    const back = card.querySelector('.flashcard-back');
+    if (front.style.display !== 'none') {
+      front.style.display = 'none';
+      back.style.display = 'block';
+    } else {
+      front.style.display = 'block';
+      back.style.display = 'none';
+    }
+  }
 </script>
 {% endblock %}

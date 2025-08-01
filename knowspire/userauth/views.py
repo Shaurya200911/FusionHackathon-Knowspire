@@ -6,10 +6,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegisterForm
-from django.utils import timezone
 from .models import UserProfile, Skill, UserSkill
 from django.db import IntegrityError, transaction
 from django.db import connection
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from .services import gemini
 import json
 
 # Login
@@ -140,10 +144,94 @@ def start_skill_view(request):
         messages.success(request, "Skill activated successfully.")
     return redirect("skills")
 
+
 @login_required
+@csrf_exempt
 def skill_detail_view(request, slug):
     skill = get_object_or_404(Skill, slug=slug)
-    return render(request, "skill_detail.html", {"skill": skill})
+    user_skill = get_object_or_404(UserSkill, user=request.user, skill=skill)
+    user_profile = request.user.profile
+    today = timezone.now().date()
+
+    # XP limits
+    MAX_XP_LESSONS = 50
+    MAX_XP_TOTAL = 100
+    XP_FLASHCARD = 3
+    XP_QUIZ_CORRECT = 1
+
+    if request.method == "POST":
+        # Quiz/flashcard submission
+        if 'quiz-submit' in request.POST:
+            quizzes = gemini.generate_quizzes(skill.slug)
+            correct_count = 0
+            for i, quiz in enumerate(quizzes):
+                user_answer = request.POST.get(f'quiz-{i}')
+                if user_answer and user_answer.strip().upper() == quiz['answer'].upper():
+                    correct_count += 1
+            xp_gain = correct_count * XP_QUIZ_CORRECT
+            # Cap quiz XP so total doesn't exceed MAX_XP_TOTAL
+            xp_possible = MAX_XP_TOTAL - user_profile.xp_total
+            xp_gain = min(xp_gain, xp_possible)
+            user_profile.xp_total += xp_gain
+            user_profile.save()
+            messages.success(request, f"You got {correct_count} correct! +{xp_gain} XP.")
+            lessons = gemini.generate_lessons(skill.slug)
+            flashcards = gemini.generate_flashcards(skill.slug)
+            return render(request, "skill_detail.html", {
+                "skill": skill,
+                "lessons": lessons,
+                "flashcards": flashcards,
+                "quizzes": quizzes,
+                "session_started": True
+            })
+        elif 'flashcard-submit' in request.POST:
+            # Award XP for completing all flashcards
+            xp_possible = MAX_XP_TOTAL - user_profile.xp_total
+            xp_gain = min(XP_FLASHCARD, xp_possible)
+            user_profile.xp_total += xp_gain
+            user_profile.save()
+            messages.success(request, f"Flashcards completed! +{xp_gain} XP.")
+            lessons = gemini.generate_lessons(skill.slug)
+            flashcards = gemini.generate_flashcards(skill.slug)
+            quizzes = gemini.generate_quizzes(skill.slug)
+            return render(request, "skill_detail.html", {
+                "skill": skill,
+                "lessons": lessons,
+                "flashcards": flashcards,
+                "quizzes": quizzes,
+                "session_started": True
+            })
+        else:
+            session_time = int(request.POST.get("session-time", 20))
+            session_mode = request.POST.get("session-mode", "revision")
+            # 25-hour cap
+            if user_skill.total_minutes_spent + session_time > 1500:
+                messages.warning(request, "You've reached the 25-hour limit for this skill.")
+                return render(request, "skill_detail.html", {
+                    "skill": skill,
+                    "limit_reached": True
+                })
+            lessons = gemini.generate_lessons(skill.slug, session_mode, session_time)
+            flashcards = gemini.generate_flashcards(skill.slug)
+            quizzes = gemini.generate_quizzes(skill.slug)
+            # XP for lessons only, cap at 50
+            xp_gain = gemini.calculate_xp(session_mode, session_time)
+            xp_gain = min(xp_gain, MAX_XP_LESSONS - user_skill.xp_earned)
+            user_profile.xp_total += xp_gain
+            user_profile.save()
+            user_skill.total_minutes_spent += session_time
+            user_skill.xp_earned += xp_gain
+            user_skill.save()
+            return render(request, "skill_detail.html", {
+                "skill": skill,
+                "lessons": lessons,
+                "flashcards": flashcards,
+                "quizzes": quizzes,
+                "session_started": True
+            })
+    return render(request, "skill_detail.html", {
+        "skill": skill
+    })
 
 @login_required
 def archive_skill(request, user_skill_id):

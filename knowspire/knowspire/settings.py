@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -134,3 +137,5 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 LOGIN_URL = 'login'              # where to go if user not logged in
 LOGIN_REDIRECT_URL = '/paywall/'  # where to go after login
 LOGOUT_REDIRECT_URL = '/'        # where to go after logout
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")  # Fallback if not set in .env

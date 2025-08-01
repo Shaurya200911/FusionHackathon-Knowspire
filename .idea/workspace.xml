@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Website 1.5[Skills 0.5]">
-      <change beforePath="$PROJECT_DIR$/.idea/FusionHackathon.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/FusionHackathon.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Website stable 3.0[gemini left]">
+      <change afterPath="$PROJECT_DIR$/knowspire/knowspire/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/knowspire/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/knowspire/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/userauth/services/gemini.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/services/gemini.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/templates/skill_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/templates/skill_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/views.py" afterDir="false" />
     </list>
@@ -37,17 +40,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Mtronics Computers/Desktop/Shaurya/Personal projects/Portfolio/Github/FusionHackathon"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Mtronics Computers/Desktop/Shaurya/Personal projects/Portfolio/Github/FusionHackathon&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Mtronics Computers\Desktop\Shaurya\Personal projects\Portfolio\Github\FusionHackathon\knowspire\userauth\" />
@@ -86,7 +90,63 @@
       <option name="project" value="LOCAL" />
       <updated>1753861443020</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Website stable 1.5[Skills ui 0.5]">
+      <option name="closed" value="true" />
+      <created>1753897423923</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1753897423923</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Website stable 1.7[Skills ui 0.5]">
+      <option name="closed" value="true" />
+      <created>1753939675427</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1753939675427</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Website stable 2.0">
+      <option name="closed" value="true" />
+      <created>1753950673540</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1753950673540</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Website stable 3.0[without skills backend]">
+      <option name="closed" value="true" />
+      <created>1753976963945</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1753976963945</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Website stable 3.0[without skills backend]">
+      <option name="closed" value="true" />
+      <created>1753977360483</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1753977360483</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Website stable 3.0[without skills backend]">
+      <option name="closed" value="true" />
+      <created>1753984854552</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1753984854552</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Website stable 3.0[gemini left]">
+      <option name="closed" value="true" />
+      <created>1754042637121</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1754042637121</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -104,6 +164,11 @@
     <MESSAGE value="Base Website[Home+Login+Paywall]" />
     <MESSAGE value="Website 1.0[Dashboard,Streak,Xp,Leaderboard]" />
     <MESSAGE value="Website 1.5[Skills 0.5]" />
-    <option name="LAST_COMMIT_MESSAGE" value="Website 1.5[Skills 0.5]" />
+    <MESSAGE value="Website stable 1.5[Skills ui 0.5]" />
+    <MESSAGE value="Website stable 1.7[Skills ui 0.5]" />
+    <MESSAGE value="Website stable 2.0" />
+    <MESSAGE value="Website stable 3.0[without skills backend]" />
+    <MESSAGE value="Website stable 3.0[gemini left]" />
+    <option name="LAST_COMMIT_MESSAGE" value="Website stable 3.0[gemini left]" />
   </component>
 </project>
