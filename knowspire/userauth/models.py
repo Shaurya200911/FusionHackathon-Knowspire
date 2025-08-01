@@ -30,6 +30,10 @@ class UserSkill(models.Model):
     started_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True, blank=True)
     total_minutes_spent = models.PositiveIntegerField(default=0)
+    # Add fields for cached Gemini content
+    lessons_cache = models.TextField(blank=True, null=True)
+    flashcards_cache = models.TextField(blank=True, null=True)
+    quizzes_cache = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("user", "skill")

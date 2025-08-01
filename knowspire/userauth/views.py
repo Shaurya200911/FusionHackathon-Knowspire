@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from .services import gemini
+from django.core.cache import cache
 import json
 
 # Login
@@ -159,24 +160,41 @@ def skill_detail_view(request, slug):
     XP_FLASHCARD = 3
     XP_QUIZ_CORRECT = 1
 
+    # Use Django cache to persist session content per user/skill
+    cache_key = f"session_content_{request.user.id}_{skill.slug}"
+    session_content = cache.get(cache_key)
+
+    # Only generate new content on POST (continue button)
     if request.method == "POST":
+        # Doubt mode AJAX
+        if request.headers.get('Content-Type') == 'application/json':
+            try:
+                data = json.loads(request.body)
+                if data.get('doubt_mode'):
+                    previous_content = (session_content.get('lessons', []) if session_content else []) + \
+                                      (session_content.get('flashcards', []) if session_content else []) + \
+                                      (session_content.get('quizzes', []) if session_content else [])
+                    previous_text = '\n'.join([str(x) for x in previous_content])
+                    answer = gemini.answer_doubt(skill.slug, previous_text, data.get('doubt', ''))
+                    return HttpResponse(json.dumps({'answer': answer}), content_type='application/json')
+            except Exception:
+                return HttpResponse(json.dumps({'answer': 'Error processing doubt.'}), content_type='application/json')
         # Quiz/flashcard submission
-        if 'quiz-submit' in request.POST:
-            quizzes = gemini.generate_quizzes(skill.slug)
+        elif 'quiz-submit' in request.POST:
+            quizzes = session_content.get('quizzes', gemini.generate_quizzes(skill.slug)) if session_content else []
             correct_count = 0
             for i, quiz in enumerate(quizzes):
                 user_answer = request.POST.get(f'quiz-{i}')
                 if user_answer and user_answer.strip().upper() == quiz['answer'].upper():
                     correct_count += 1
             xp_gain = correct_count * XP_QUIZ_CORRECT
-            # Cap quiz XP so total doesn't exceed MAX_XP_TOTAL
             xp_possible = MAX_XP_TOTAL - user_profile.xp_total
             xp_gain = min(xp_gain, xp_possible)
             user_profile.xp_total += xp_gain
             user_profile.save()
             messages.success(request, f"You got {correct_count} correct! +{xp_gain} XP.")
-            lessons = gemini.generate_lessons(skill.slug)
-            flashcards = gemini.generate_flashcards(skill.slug)
+            lessons = session_content.get('lessons', []) if session_content else []
+            flashcards = session_content.get('flashcards', []) if session_content else []
             return render(request, "skill_detail.html", {
                 "skill": skill,
                 "lessons": lessons,
@@ -185,15 +203,14 @@ def skill_detail_view(request, slug):
                 "session_started": True
             })
         elif 'flashcard-submit' in request.POST:
-            # Award XP for completing all flashcards
             xp_possible = MAX_XP_TOTAL - user_profile.xp_total
             xp_gain = min(XP_FLASHCARD, xp_possible)
             user_profile.xp_total += xp_gain
             user_profile.save()
             messages.success(request, f"Flashcards completed! +{xp_gain} XP.")
-            lessons = gemini.generate_lessons(skill.slug)
-            flashcards = gemini.generate_flashcards(skill.slug)
-            quizzes = gemini.generate_quizzes(skill.slug)
+            lessons = session_content.get('lessons', []) if session_content else []
+            flashcards = session_content.get('flashcards', []) if session_content else []
+            quizzes = session_content.get('quizzes', []) if session_content else []
             return render(request, "skill_detail.html", {
                 "skill": skill,
                 "lessons": lessons,
@@ -204,7 +221,6 @@ def skill_detail_view(request, slug):
         else:
             session_time = int(request.POST.get("session-time", 20))
             session_mode = request.POST.get("session-mode", "revision")
-            # 25-hour cap
             if user_skill.total_minutes_spent + session_time > 1500:
                 messages.warning(request, "You've reached the 25-hour limit for this skill.")
                 return render(request, "skill_detail.html", {
@@ -214,7 +230,12 @@ def skill_detail_view(request, slug):
             lessons = gemini.generate_lessons(skill.slug, session_mode, session_time)
             flashcards = gemini.generate_flashcards(skill.slug)
             quizzes = gemini.generate_quizzes(skill.slug)
-            # XP for lessons only, cap at 50
+            session_content = {
+                'lessons': lessons,
+                'flashcards': flashcards,
+                'quizzes': quizzes
+            }
+            cache.set(cache_key, session_content, timeout=60*60*24)  # 1 day
             xp_gain = gemini.calculate_xp(session_mode, session_time)
             xp_gain = min(xp_gain, MAX_XP_LESSONS - user_skill.xp_earned)
             user_profile.xp_total += xp_gain
@@ -229,6 +250,15 @@ def skill_detail_view(request, slug):
                 "quizzes": quizzes,
                 "session_started": True
             })
+    # On GET, show last session content if available
+    if session_content:
+        return render(request, "skill_detail.html", {
+            "skill": skill,
+            "lessons": session_content.get('lessons', []),
+            "flashcards": session_content.get('flashcards', []),
+            "quizzes": session_content.get('quizzes', []),
+            "session_started": True
+        })
     return render(request, "skill_detail.html", {
         "skill": skill
     })
