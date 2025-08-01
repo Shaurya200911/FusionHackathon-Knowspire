@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.sqlite3
+*.log
+staticfiles/
+media/
+
+# VSCode
+.vscode/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.swp
+
+# Node
+node_modules/
+
+# Ignore migrations cache
+userauth/migrations/__pycache__/
+
+# Ignore test output
+*.coverage
+coverage.xml
+
+# Ignore public assets
+userauth/public/
+
