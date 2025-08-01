@@ -118,6 +118,13 @@
                   </div>
                 {% endfor %}
               </div>
+              <!-- End Session button for lessons tab only -->
+              <div class="text-center" style="margin-top: 40px; margin-bottom: 20px;">
+                <form method="post" action="{% url 'skills' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-lg">End Session</button>
+                </form>
+              </div>
             </div>
           </div>
           <!-- Flashcards Tab -->
@@ -141,6 +148,13 @@
                 <form method="post" id="flashcard-complete-form" style="display:none;">
                   {% csrf_token %}
                   <button type="submit" name="flashcard-submit" class="btn btn-success mt-3">I've completed all flashcards</button>
+                </form>
+              </div>
+              <!-- End Session button for flashcards tab only -->
+              <div class="text-center" style="margin-top: 40px; margin-bottom: 20px;">
+                <form method="post" action="{% url 'skills' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-lg">End Session</button>
                 </form>
               </div>
             </div>
@@ -178,6 +192,13 @@
                   <div id="quiz-progress" class="mt-2">Question 1 of {{ quizzes|length }}</div>
                 </form>
               </div>
+              <!-- End Session button for quizzes tab only -->
+              <div class="text-center" style="margin-top: 40px; margin-bottom: 20px;">
+                <form method="post" action="{% url 'skills' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-lg">End Session</button>
+                </form>
+              </div>
             </div>
           </div>
           <!-- Doubt Tab -->
@@ -193,14 +214,15 @@
                 <button type="button" class="btn btn-primary" id="send-doubt">Send</button>
               </form>
               <div id="doubt-answer" class="mt-3" style="display:none;"></div>
+              <!-- End Session button for doubt tab only -->
+              <div class="text-center" style="margin-top: 40px; margin-bottom: 20px;">
+                <form method="post" action="{% url 'skills' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-lg">End Session</button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="mb-5 text-center">
-          <form method="post" action="{% url 'skills' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">End Session</button>
-          </form>
         </div>
       {% else %}
         <div class="alert alert-info">No content available for this skill. (Lessons, flashcards, and quizzes are not implemented in the current version.)</div>

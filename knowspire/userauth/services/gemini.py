@@ -7,19 +7,27 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel(model_name="models/gemini-2.0-flash")
 
 def generate_lessons(skill_slug, mode="continue", minutes=20, previous_content=None):
+    context = "" if not previous_content else f"Previously covered: {previous_content}\n"
     prompt = (
-        f"Generate {minutes}-minute learning lessons for the skill '{skill_slug}' in {mode} mode. "
-        "Format: Each lesson as a separate block, with a conversational style. "
-        "Knowspire AI is the teacher. Do not generate student responses. "
-        "Each block should start with 'Lesson {number}:' and include a greeting, explanation, examples, and a summary. "
-        "Be factual, straightforward, but human in conversation. Separate lessons by a blank line."
+        f"{context}Generate {minutes}-minute learning lessons for the skill '{skill_slug}' in {mode} mode. "
+        "Format: Each lesson as a separate block, with explanation, examples, and summary only. "
+        "Do NOT include greetings, introductions, or any text before the actual lesson content. "
+        "Do NOT repeat concepts already covered unless mode is 'revision'. "
+        "If mode is 'revision', review and reinforce previous concepts."
     )
     response = model.generate_content(prompt)
     lessons = [block.strip() for block in response.text.strip().split('\n\n') if block.strip()]
     return lessons
 
-def generate_flashcards(skill_slug):
-    prompt = f"Create 5 flashcards for the skill: {skill_slug}. Format: Question | Answer (separated by '|'). Each flashcard on a new line."
+def generate_flashcards(skill_slug, previous_content=None, mode="continue"):
+    context = "" if not previous_content else f"Previously covered: {previous_content}\n"
+    prompt = (
+        f"{context}Create 5 flashcards for the skill: {skill_slug}. "
+        "Format: Question | Answer (separated by '|'). Each flashcard on a new line. "
+        "Do NOT include greetings, introductions, or any text before the actual flashcards. "
+        "Do NOT repeat concepts already covered unless mode is 'revision'. "
+        "If mode is 'revision', review and reinforce previous concepts."
+    )
     response = model.generate_content(prompt)
     cards = []
     for line in response.text.strip().split("\n"):
@@ -28,8 +36,15 @@ def generate_flashcards(skill_slug):
             cards.append({'question': q.strip(), 'answer': a.strip()})
     return cards
 
-def generate_quizzes(skill_slug):
-    prompt = f"Create 5 multiple choice quiz questions for the skill: {skill_slug}. Format: Question, then A) Option, B) Option, C) Option, D) Option, then Answer: (A/B/C/D). Separate each question by a blank line."
+def generate_quizzes(skill_slug, previous_content=None, mode="continue"):
+    context = "" if not previous_content else f"Previously covered: {previous_content}\n"
+    prompt = (
+        f"{context}Create 5 multiple choice quiz questions for the skill: {skill_slug}. "
+        "Format: Question, then A) Option, B) Option, C) Option, D) Option, then Answer: (A/B/C/D). Separate each question by a blank line. "
+        "Do NOT include greetings, introductions, or any text before the actual quiz questions. "
+        "Do NOT repeat concepts already covered unless mode is 'revision'. "
+        "If mode is 'revision', review and reinforce previous concepts."
+    )
     response = model.generate_content(prompt)
     quizzes = []
     for block in response.text.strip().split('\n\n'):

@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Website stable 4.0[Ui upgrade]">
+    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Website stable 5.0[Ui upgrade]">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/userauth/services/gemini.py" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/userauth/services/gemini.py" afterDir="false" />
@@ -151,7 +151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754078244379</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Website stable 5.0[Ui upgrade]">
+      <option name="closed" value="true" />
+      <created>1754082498768</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1754082498768</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -175,6 +183,7 @@
     <MESSAGE value="Website stable 3.0[without skills backend]" />
     <MESSAGE value="Website stable 3.0[gemini left]" />
     <MESSAGE value="Website stable 4.0[Ui upgrade]" />
-    <option name="LAST_COMMIT_MESSAGE" value="Website stable 4.0[Ui upgrade]" />
+    <MESSAGE value="Website stable 5.0[Ui upgrade]" />
+    <option name="LAST_COMMIT_MESSAGE" value="Website stable 5.0[Ui upgrade]" />
   </component>
 </project>

@@ -154,13 +154,11 @@ def skill_detail_view(request, slug):
     user_profile = request.user.profile
     today = timezone.now().date()
 
-    # XP limits
-    MAX_XP_LESSONS = 50
-    MAX_XP_TOTAL = 100
-    XP_FLASHCARD = 3
-    XP_QUIZ_CORRECT = 1
+    # XP limits and pacing
+    MAX_XP_LESSONS = 150
+    MAX_XP_COMPLETION = 50
+    TOTAL_XP_SKILL = MAX_XP_LESSONS + MAX_XP_COMPLETION
 
-    # Use Django cache to persist session content per user/skill
     cache_key = f"session_content_{request.user.id}_{skill.slug}"
     session_content = cache.get(cache_key)
 
@@ -220,28 +218,40 @@ def skill_detail_view(request, slug):
             })
         else:
             session_time = int(request.POST.get("session-time", 20))
-            session_mode = request.POST.get("session-mode", "revision")
+            session_mode = request.POST.get("session-mode", "continue")
             if user_skill.total_minutes_spent + session_time > 1500:
                 messages.warning(request, "You've reached the 25-hour limit for this skill.")
                 return render(request, "skill_detail.html", {
                     "skill": skill,
                     "limit_reached": True
                 })
-            lessons = gemini.generate_lessons(skill.slug, session_mode, session_time)
-            flashcards = gemini.generate_flashcards(skill.slug)
-            quizzes = gemini.generate_quizzes(skill.slug)
+            # Gather previous content for context
+            previous_lessons = user_skill.lessons_cache or ""
+            previous_flashcards = user_skill.flashcards_cache or ""
+            previous_quizzes = user_skill.quizzes_cache or ""
+            previous_content = f"{previous_lessons}\n{previous_flashcards}\n{previous_quizzes}"
+            lessons = gemini.generate_lessons(skill.slug, session_mode, session_time, previous_content)
+            flashcards = gemini.generate_flashcards(skill.slug, previous_content, session_mode)
+            quizzes = gemini.generate_quizzes(skill.slug, previous_content, session_mode)
             session_content = {
                 'lessons': lessons,
                 'flashcards': flashcards,
                 'quizzes': quizzes
             }
             cache.set(cache_key, session_content, timeout=60*60*24)  # 1 day
-            xp_gain = gemini.calculate_xp(session_mode, session_time)
-            xp_gain = min(xp_gain, MAX_XP_LESSONS - user_skill.xp_earned)
+            # XP pacing: percent progress
+            percent_progress = min(100, ((user_skill.total_minutes_spent + session_time) / 1500) * 100)
+            xp_gain = int((percent_progress / 100) * MAX_XP_LESSONS) - user_skill.xp_earned
+            xp_gain = max(0, xp_gain)
             user_profile.xp_total += xp_gain
             user_profile.save()
             user_skill.total_minutes_spent += session_time
             user_skill.xp_earned += xp_gain
+            # Completion bonus
+            if percent_progress == 100 and not user_skill.completed_at:
+                user_profile.xp_total += MAX_XP_COMPLETION
+                user_profile.save()
+                user_skill.completed_at = timezone.now()
             user_skill.save()
             return render(request, "skill_detail.html", {
                 "skill": skill,
