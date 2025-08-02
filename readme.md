@@ -92,7 +92,7 @@ KnowSpire is a Django-based web app that transforms curiosity into meaningful, g
 
 ```bash
 # 1. Clone the repo
-$ git clone https://github.com/yourusername/knowspire.git
+$ git clone https://github.com/Shaurya200911/knowspire.git
 $ cd knowspire
 
 # 2. Install dependencies

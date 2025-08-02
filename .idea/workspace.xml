@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Knowspire Final Version">
+    <list default="true" id="dbfb7a91-5510-4c52-85b9-aa0bd93f95a6" name="Changes" comment="Knowspire Final Update - Tests">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/knowspire/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/knowspire/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/knowspire/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/knowspire/db.sqlite3" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +27,12 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Shaurya200911"
+  }
+}]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/Shaurya200911/FusionHackathon-Knowspire.git",
@@ -178,7 +185,23 @@
       <option name="project" value="LOCAL" />
       <updated>1754085624890</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Knowspire Final Update">
+      <option name="closed" value="true" />
+      <created>1754086109374</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1754086109374</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Knowspire Final Update - Tests">
+      <option name="closed" value="true" />
+      <created>1754086291506</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1754086291506</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -205,6 +228,8 @@
     <MESSAGE value="Website stable 5.0[Ui upgrade]" />
     <MESSAGE value="Website stable 6.0[Ui upgrade]" />
     <MESSAGE value="Knowspire Final Version" />
-    <option name="LAST_COMMIT_MESSAGE" value="Knowspire Final Version" />
+    <MESSAGE value="Knowspire Final Update" />
+    <MESSAGE value="Knowspire Final Update - Tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="Knowspire Final Update - Tests" />
   </component>
 </project>
