@@ -90,29 +90,53 @@ KnowSpire is a Django-based web app that transforms curiosity into meaningful, g
 
 ## 🚦 Getting Started
 
+### Prerequisites
+- Python 3.10+ installed ([Download Python](https://www.python.org/downloads/))
+- Git installed ([Download Git](https://git-scm.com/downloads))
+
+### 1. Clone the Repository
 ```bash
-# 1. Clone the repo
-$ git clone https://github.com/Shaurya200911/knowspire.git
-$ cd knowspire
-
-# 2. (Optional) Create and activate a virtual environment
-$ python -m venv venv
-$ venv\Scripts\activate  # On Windows
-
-# 3. Install dependencies
-$ pip install -r requirements.txt
-
-# 4. Set up your .env file in knowspire/knowspire/
-GEMINI_API_KEY=your-gemini-api-key
-
-# 5. Run migrations
-$ python manage.py migrate
-
-# 6. Start the server
-$ python manage.py runserver
+git clone https://github.com/Shaurya200911/FusionHackathon-Knowspire.git
+cd FusionHackathon-Knowspire/knowspire
 ```
 
-Then, register, log in, and start learning!
+### 2. Create and Activate a Virtual Environment
+#### On Windows
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+#### On macOS/Linux
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Set Up Environment Variables
+- Copy `.env.example` (if available) to `.env` in `knowspire/knowspire/`.
+- Add your Gemini API key:
+```
+GEMINI_API_KEY=your-gemini-api-key
+```
+
+### 5. Run Migrations
+```bash
+python manage.py migrate
+```
+
+### 6. Start the Development Server
+```bash
+python manage.py runserver
+```
+
+### 7. Access the App
+- Open your browser and go to [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- Register, log in, and start learning!
 
 ---
 
