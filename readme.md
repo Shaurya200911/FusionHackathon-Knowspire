@@ -92,19 +92,23 @@ KnowSpire is a Django-based web app that transforms curiosity into meaningful, g
 
 ```bash
 # 1. Clone the repo
-$ git clone https://github.com/yourusername/knowspire.git
+$ git clone https://github.com/Shaurya200911/knowspire.git
 $ cd knowspire
 
-# 2. Install dependencies
+# 2. (Optional) Create and activate a virtual environment
+$ python -m venv venv
+$ venv\Scripts\activate  # On Windows
+
+# 3. Install dependencies
 $ pip install -r requirements.txt
 
-# 3. Set up your .env file
+# 4. Set up your .env file in knowspire/knowspire/
 GEMINI_API_KEY=your-gemini-api-key
 
-# 4. Run migrations
+# 5. Run migrations
 $ python manage.py migrate
 
-# 5. Start the server
+# 6. Start the server
 $ python manage.py runserver
 ```
 
