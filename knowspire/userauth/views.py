@@ -80,16 +80,36 @@ def paywall_view(request):
 @login_required
 def dashboard_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    # Calculate weekly progress: percent of days with activity in last 7 days
+    today = timezone.now().date()
+    last_7_days = [today - timezone.timedelta(days=i) for i in range(7)]
+    streak_days = set()
+    if profile.last_activity_at:
+        for i in range(profile.current_streak):
+            streak_days.add((profile.last_activity_at.date() - timezone.timedelta(days=i)))
+    weekly_progress = int(100 * len(set(last_7_days) & streak_days) / 7)
+
+    # Recent activity: skill added or streak continued
+    activities = []
+    # Skill added (last 5)
+    new_skills = UserSkill.objects.filter(user=request.user).order_by('-started_at')[:5]
+    for skill in new_skills:
+        activities.append(f"Added skill: {skill.skill.title}")
+    # Streak continued (today)
+    if profile.last_activity_at and profile.last_activity_at.date() == today:
+        activities.insert(0, f"Streak continued! ({profile.current_streak} days)")
+    else:
+        activities.insert(0, "No streak today.")
     context = {
         "profile": profile,
         "xp": profile.xp_total,
         "streak": profile.current_streak,
         "longest_streak": profile.longest_streak,
         "skills_count": UserSkill.objects.filter(user=request.user, is_active=True).count(),
-        "weekly_progress": 0,  # No weekly_progress field anymore
-        "recent_activities": [],  # No Activity model
+        "weekly_progress": weekly_progress,
+        "activity_history": activities,
         "last_seen": profile.last_activity_at,
-        "today": timezone.now().date(),
+        "today": today,
     }
     return render(request, "dashboard.html", context)
 
@@ -118,6 +138,10 @@ def skills_view(request):
     user = request.user
     if request.method == "POST":
         skill_slug = request.POST.get("skill_slug")
+        active_skill_count = UserSkill.objects.filter(user=user, is_active=True).count()
+        if active_skill_count >= 3:
+            messages.error(request, "You cannot have more than 3 active skills at a time. Please archive or delete an active skill before adding a new one.")
+            return redirect("skills")
         if skill_slug:
             skill, _ = Skill.objects.get_or_create(slug=skill_slug, defaults={"title": skill_slug})
             user_skill, _ = UserSkill.objects.get_or_create(user=user, skill=skill)

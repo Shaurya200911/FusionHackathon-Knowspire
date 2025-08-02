@@ -40,3 +40,16 @@ class UserSkill(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.skill.title} ({'active' if self.is_active else 'inactive'})"
+
+class XPLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, null=True, blank=True)
+    xp_amount = models.PositiveIntegerField()
+    reason = models.CharField(max_length=120)
+    awarded_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-awarded_at']
+
+    def __str__(self):
+        return f"{self.user.username}: +{self.xp_amount} XP for {self.reason} ({self.awarded_at:%Y-%m-%d %H:%M})"

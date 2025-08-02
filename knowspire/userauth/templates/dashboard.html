@@ -218,23 +218,31 @@
     <section class="progress-section">
       <h2>Overall Weekly Progress</h2>
       <div class="progress-bar">
-        <div class="progress-bar-inner"></div>
+        <div class="progress-bar-inner" style="width: {{ weekly_progress }}%;"></div>
       </div>
+      <div style="margin-top:8px;color:var(--text-secondary);font-size:14px;">{{ weekly_progress }}% of days active this week</div>
     </section>
 
     <!-- Quick Actions -->
     <section class="quick-actions">
       <h3>Quick Actions</h3>
-      <button>View Profile</button>
-      <button>Start New Course</button>
-      <button>Check Leaderboard</button>
+      <button onclick="window.location.href='{% url 'dashboard' %}'">View Profile</button>
+      <button onclick="window.location.href='{% url 'skills' %}'">Start New Course</button>
+      <button onclick="window.location.href='{% url 'leaderboard' %}'">Check Leaderboard</button>
     </section>
 
     <!-- Recent Activity -->
     <section class="recent-activity">
       <h3>Recent Activity</h3>
       <ul>
-        <li>No recent activity yet.</li>
+        {% for activity in activity_history|slice:":5" %}
+          <li>{{ activity }}</li>
+        {% empty %}
+          <li>No recent activity yet.</li>
+        {% endfor %}
+        {% if activity_history|length > 5 %}
+          <li>...and {{ activity_history|length|add:"-5" }} more</li>
+        {% endif %}
       </ul>
     </section>
   </main>

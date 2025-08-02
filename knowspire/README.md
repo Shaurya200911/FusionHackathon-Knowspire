@@ -140,6 +140,38 @@ python manage.py runserver
 
 ---
 
+## 🧪 Tests
+
+Automated tests are provided to ensure reliability:
+- `userauth/tests.py`: Covers user registration, skill creation, starting a skill, dashboard view, and leaderboard view.
+- `userauth/test_streaks.py`: Covers daily streak logic, XP bonuses, and streak increment/reset scenarios.
+
+To run all tests:
+```bash
+pytest
+```
+
+## 📸 Screenshots
+
+Below are screenshots of the KnowSpire website:
+
+![Logo](userauth/assets/images/img_header_logo.png)
+![Website Screenshot 1](userauth/assets/images/website1.png)
+![Website Screenshot 2](userauth/assets/images/website 2.png)
+![Website Screenshot 3](userauth/assets/images/website 3.png)
+![Website Screenshot 4](userauth/assets/images/website 4.png)
+![Website Screenshot 5](userauth/assets/images/website 5.png)
+![Website Screenshot 6](userauth/assets/images/website 6.png)
+![Website Screenshot 7](userauth/assets/images/website 7.png)
+![Website Screenshot 8](userauth/assets/images/website 8.png)
+![Website Screenshot 9](userauth/assets/images/website 9.png)
+![Website Screenshot 10](userauth/assets/images/website 10.png)
+![Website Screenshot 11](userauth/assets/images/website 11.png)
+![Website Screenshot 12](userauth/assets/images/website 12.png)
+![Website Screenshot 13](userauth/assets/images/website 13.png)
+![Website Screenshot 14](userauth/assets/images/website 14.png)
+![Website Screenshot 15](userauth/assets/images/website 15.png)
+
 ## 🤝 Contributing
 Open to feature requests, bug reports, and collaboration. See [issues](https://github.com/yourusername/knowspire/issues) or contact the team.
 
